@@ -8,23 +8,31 @@ def generate_data(seq_len=20, total_samples=1000):
     :param total_samples: 样本数量
     :return: x_train, y_train, x_test, y_test 四个Tensor，均已转float32并带batch维度
     """
+    #np.linspace(0, 100, total_samples + seq_len)：
+    # 在 0 到 100 之间等间距生成 total_samples + seq_len 个点，作为横坐标（时间轴）。
     x = np.linspace(0, 100, total_samples + seq_len)
+    #正态分布噪声（均值为0，标准差为0 .1），模拟现实中不稳定因素
     y = np.sin(x) + np.random.normal(scale=0.1, size=len(x))
-
+    #X：存储所有输入序列（长度为 seq_len）。
+    #Y：存储所有对应的目标值（即序列之后的那个点）
     X, Y = [], []
     for i in range(total_samples):
-        X.append(y[i:i+seq_len])
-        Y.append(y[i+seq_len])
+        # 对于每一个样本位置 i，提取一个长度为 seq_len 的序列作为输入
+        X.append(y[i:i + seq_len])
+        # 该序列的下一个时间点的值作为预测目标（单值回归）
+        Y.append(y[i + seq_len])
 
-    X = np.array(X)
-    Y = np.array(Y)
-
-    X = torch.tensor(X, dtype=torch.float32).unsqueeze(-1)  # (samples, seq_len, 1)
-    Y = torch.tensor(Y, dtype=torch.float32).unsqueeze(-1)  # (samples, 1)
-
+    # 将列表转换为 NumPy 数组
+    X = np.array(X)  # shape: (samples, seq_len)
+    Y = np.array(Y)  # shape: (samples,)
+    # 加一个特征维度，变成 (samples, seq_len, 1)，适用于 RNN/LSTM/Transformer 输入格式
+    X = torch.tensor(X, dtype=torch.float32).unsqueeze(-1)  # shape: (samples, seq_len, 1)
+    Y = torch.tensor(Y, dtype=torch.float32).unsqueeze(-1)  # shape: (samples, 1)
+    # 按 80% / 20% 划分训练集和测试集
     train_size = int(0.8 * total_samples)
-    x_train, y_train = X[:train_size], Y[:train_size]
-    x_test, y_test = X[train_size:], Y[train_size:]
+    # 切分出训练集和测试集
+    x_train, y_train = X[:train_size], Y[:train_size]  # 训练集
+    x_test, y_test = X[train_size:], Y[train_size:]  # 测试集
 
     return x_train, y_train, x_test, y_test
 if __name__ == "__main__":

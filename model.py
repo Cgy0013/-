@@ -11,13 +11,15 @@ class MLP(nn.Module):
         super(MLP, self).__init__()
         self.model = nn.Sequential(
             nn.Flatten(),  # 展平成一维
+            #（即 seq_len × 每个时间点的维度）
             nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)  # 输出单值预测
         )
 
     def forward(self, x):
-        # 输入 x 形状 (batch, seq_len, input_dim) ，这里input_dim通常是1，展平后变 (batch, seq_len*input_dim)
+        # 输入 x 形状 (batch, seq_len, input_dim) ，
+        # 这里input_dim通常是1，展平后变 (batch, seq_len*input_dim)
         return self.model(x)
 
 # LSTM模型
